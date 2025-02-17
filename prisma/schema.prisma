@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id              String   @id @default(uuid())
+  username        String   @unique
+  email           String   @unique
+  password        String
+  phoneNumber     String?
+  profilePicture  String?
+  name            String?
+  bookings        Booking[]
+  reviews         Review[]
+}
+
+model Host {
+  id              String    @id @default(uuid())
+  username        String   @unique
+  password        String
+  name            String
+  email           String   @unique
+  phoneNumber     String?
+  profilePicture  String?
+  aboutMe         String?
+  listings        Property[]
+}
+
+model Property {
+  id             String     @id @default(uuid())
+  title          String
+  description    String?
+  location       String
+  pricePerNight  Float
+  bedroomCount   Int?
+  bathRoomCount  Int?
+  maxGuestCount  Int?
+  host          Host      @relation(fields: [hostId], references: [id])
+  hostId        String
+  amenities     Amenity[]  @relation("PropertyAmenities")
+  bookings      Booking[]
+  reviews       Review[]
+  rating        Int?
+}
+
+model Amenity {
+  id         String     @id @default(uuid()) 
+  name       String
+  properties Property[] @relation("PropertyAmenities")
+}
+
+model Booking {
+  id             String  @id @default(uuid())
+  user           User    @relation(fields: [userId], references: [id])
+  userId         String
+  property       Property @relation(fields: [propertyId], references: [id])
+  propertyId     String
+  startDate      DateTime
+  endDate        DateTime
+  totalPrice     Float
+  numberOfGuests Int?
+  bookingStatus  String?
+}
+
+model Review {
+  id         String  @id @default(uuid())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId String
+  rating     Int
+  comment    String?
+}
